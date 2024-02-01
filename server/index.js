@@ -32,12 +32,29 @@ connect('mongodb+srv://mdrehan4650:Sharukhian1234@collabcanvas.iwtndj6.mongodb.n
 let clients = 0;
 let canvas;
 
+app.get("/api/user", async (req, res) => {
+    if(req.session.user) {
+        res.send(user);
+    }else{
+        res.send(null);
+    }
+})
+
 app.post("/api/signup", async (req, res) => {
     const { username, email, password } = req.body;
+
+    let user1 = await userModel.findOne({username: username});
+    let user2 = await userModel.findOne({email: email});
+
+    if(user1 || user2) {
+        res.send({success: false, msg: "User Already Exists"});
+        return;
+    } 
+
     try{
         const newUser = new userModel({username, email, password});
         newUser.save();
-        res.json({user: {
+        res.json({success: true ,user: {
             username, email
         }});
         req.session.user = {
@@ -48,18 +65,35 @@ app.post("/api/signup", async (req, res) => {
     }
 });
 
+app.post("/api/login", async (req, res) => {
+    const { username, password } = req.body;
+
+    let user = await userModel.findOne({username: username});
+    if(!user) {
+        res.send({success: false, msg: "User Does Not Exist"});
+        return;
+    }
+
+    if(user.password == password) {
+        res.send({success: true, user: user});
+        return;
+    }else{
+        res.send({success: false, msg: "Wrong Password"});
+    }
+})
+
 io.on('connection', (socket) => {
     clients++;
     console.log("connected");
 
     socket.on("setUser", (user) => {
         socket.user = user;
-        // socket.broadcast.emit("newUser", socket.user);
-        // socket.emit("recievedObject", canvas);
+        socket.broadcast.emit("newUser", socket.user);
+        socket.emit("recievedObject", canvas);
     })
 
     socket.on("objectAdded", (data) => {
-        // canvas = data;
+        canvas = data;
         socket.broadcast.emit("recievedObject", data);
     })
 

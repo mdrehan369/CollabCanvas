@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useUserContext } from "../contexts/UserContext";
+import {useNavigate} from 'react-router-dom'
 
 function SignupForm() {
 
     const { setUser } = useUserContext();
     const [msg, setMsg] = useState("");
+    const [visible, setVisible] = useState(false);
+    const nav = useNavigate();
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -17,7 +20,12 @@ function SignupForm() {
 
         try{
             let res = await axios.post("/api/signup", formData);
-            setUser(res.data.user);
+            if(res.data.success) {
+              setUser(res.data.user);
+              nav("/");
+            }else{
+              setMsg(res.data.msg);
+            }
         }catch {
             setMsg("Some Error Occured");
         }
@@ -47,7 +55,7 @@ function SignupForm() {
             Password
           </label>
           <input
-            type="password"
+            type={visible?"text":"password"}
             className="form-control"
             id="exampleInputPassword1"
             name="password"
@@ -58,6 +66,7 @@ function SignupForm() {
             type="checkbox"
             className="form-check-input"
             id="exampleCheck1"
+            onClick= {(e) => setVisible((prev) => !prev)}
           />
           <label className="form-check-label" for="exampleCheck1">
             Show Password

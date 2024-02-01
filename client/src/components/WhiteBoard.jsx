@@ -14,15 +14,23 @@ import eraser from "../assets/eraser.png";
 import clicker from "../assets/clicker.png"
 import { useUserContext } from "../contexts/UserContext.js";
 import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 function WhiteBoard() {
 
-  const { user } = useUserContext();
+  const { user, setUser } = useUserContext();
   const nav = useNavigate();
 
-  if(user === null) {
-    nav("/login");
-  }
+  useEffect(() => {
+    axios.get("/api/user").then((data) => {
+  nav("/login");
+      if(!data.data) {
+        nav("/login");
+      }
+      setUser(data.data);
+    }).catch((e) => console.log(e));
+
+  }, [])
 
   const [fillColor, setFillcolor] = useState("#ff004f");
   const [mode, setMode] = useState(true);

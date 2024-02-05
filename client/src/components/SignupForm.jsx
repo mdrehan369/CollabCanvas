@@ -22,7 +22,7 @@ function SignupForm() {
       }
 
         try{
-            let res = await axios.post("/api/signup", body);
+            let res = await axios.post("/api/signup", body, {baseURL: 'https://collabcanvas-backend.onrender.com'});
             console.log(res);
             if(res.data.success) {
               setUser(res.data.user);

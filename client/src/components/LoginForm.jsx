@@ -21,7 +21,7 @@ function LoginForm() {
     }
 
     try{
-        let res = await axios.post("/api/login", body);
+        let res = await axios.post("/api/login", body, {baseURL: 'https://collabcanvas-backend.onrender.com'});
         console.log(res)
         if(res.data.success) {
           setUser(res.data.user);

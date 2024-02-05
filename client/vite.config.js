@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      '/api': process.env.VITE_BACKEND_URI
+      '/api': 'https://collabcanvas-backend.onrender.com'
     }
   }
 })

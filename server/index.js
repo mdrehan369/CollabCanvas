@@ -6,17 +6,19 @@ import { userModel } from "./lib/user.model.js"
 import session from 'express-session';
 import cors from "cors";
 import bodyParser from 'body-parser';
+import 'dotenv/config';
 
 const app = express();
+const port = process.env.PORT || 3000
 const server = http.createServer(app);
 const io = new Server(server, {
     cors:{
-        origin: 'http://localhost:5173',
+        origin: '*',
         credentials: true
     }
 });
 
-app.use(session({ 
+app.use(session({
     secret: 'your-secret-key', 
     resave: false, 
     saveUninitialized: true,
@@ -27,17 +29,35 @@ app.use(cors());
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
 
-connect('mongodb+srv://mdrehan4650:Sharukhian1234@collabcanvas.iwtndj6.mongodb.net/?retryWrites=true&w=majority')
+connect(process.env.MONGO_URI);
 
-let clients = 0;
-let canvas;
+let rooms = {
+    'test': {canvas: null, clients: 0}
+};
 
 app.get("/api/user", async (req, res) => {
     if(req.session.user) {
-        res.send(user);
+        res.send({success: true, user});
     }else{
-        res.send(null);
+        res.send({success: false, user: null});
     }
+})
+
+app.get("/api/room/:id", (req, res) => {
+    const { id } = req.params;
+    for(let key of Object.keys(rooms)) {
+        if(key == id) {
+            res.send({success: true});
+            return;
+        }
+    }
+    res.send({success: false});
+})
+
+app.get("/api/logout", (req, res) => {
+    req.session.user = null;
+    res.sendStatus(200);
+    res.end();
 })
 
 app.post("/api/signup", async (req, res) => {
@@ -83,25 +103,48 @@ app.post("/api/login", async (req, res) => {
 })
 
 io.on('connection', (socket) => {
-    clients++;
     console.log("connected");
 
-    socket.on("setUser", (user) => {
-        socket.user = user;
-        socket.broadcast.emit("newUser", socket.user);
-        socket.emit("recievedObject", canvas);
+    socket.on("objectAdded", ({data, roomID}) => {
+        rooms[roomID]['canvas'] = data;
+        socket.in(roomID).emit("recievedObject", data);
+    });
+
+    socket.on("joinRoom", ({roomID, username}) => {
+        if(!rooms[roomID]) {
+            rooms[roomID] = {};
+            rooms[roomID]['clients'] = 1;
+        }else{
+            rooms[roomID]['clients']++;
+        }
+        socket.join(roomID);
+        io.in(roomID).emit("newUserJoined", {users: rooms[roomID]['clients'], user: username});
+        console.log(rooms)
+        socket.emit("recievedObject", rooms[roomID]['canvas']);
     })
 
-    socket.on("objectAdded", (data) => {
-        canvas = data;
-        socket.broadcast.emit("recievedObject", data);
+    socket.on("leaveRoom", ({roomID, username}) => {
+        console.log("leaved");
+        rooms[roomID]['clients']--;
+        if(rooms[roomID]['clients'] == 0) {
+            delete rooms[roomID];
+        }else{
+            io.sockets.in(roomID).emit("userLeft", {users: rooms[roomID]['clients'], user: username});
+        }
+        socket.leave(roomID);
+        console.log(rooms);
     })
 
-    socket.on("disconnection", () => {
+    socket.on("chatSend", ({msg, username, roomID}) => {
+        socket.in(roomID).emit("msgRecieved", {msg:msg, username:username});
+    })
+
+    socket.on("disconnection", (data) => {
+        console.log(data);
         console.log("disconnected");
     })
 });
 
-server.listen(3000, () => {
-    console.log("listening on port http://localhost:3000");
+server.listen(port, () => {
+    console.log(`listening on port http://localhost:${port}`);
 })

@@ -5,6 +5,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import LoginForm from './components/LoginForm.jsx'
 import SignupForm from './components/SignupForm.jsx'
 import WhiteBoard from './components/WhiteBoard.jsx'
+import Home from './components/Home.jsx'
 
 const router = createBrowserRouter([
     {
@@ -13,7 +14,7 @@ const router = createBrowserRouter([
         children: [
             {
                 path: '/',
-                element: <WhiteBoard />
+                element: <Home />
             },
             {
                 path: '/login',
@@ -22,6 +23,10 @@ const router = createBrowserRouter([
             {
                 path: '/signup',
                 element: <SignupForm />
+            },
+            {
+                path:'/whiteBoard/:id',
+                element: <WhiteBoard />
             }
         ]
     },

@@ -30,7 +30,7 @@ function Home() {
 
   const handleLogout = async () => {
     try{
-      let res = await axios.get("/api/logout");
+      let res = await axios.get("/api/logout", {baseURL:'https://collabcanvas-backend.onrender.com'});
       if(res.status === 200) {
         setUser(null);
         nav("/login");
@@ -44,7 +44,7 @@ function Home() {
 
   const handleJoinRoom = async () => {
     try {
-      let res = await axios.get(`/api/room/${roomID}`);
+      let res = await axios.get(`/api/room/${roomID}`, {baseURL:'https://collabcanvas-backend.onrender.com'});
       if (res.data.success) {
         nav(`/whiteBoard/${roomID}`);
       } else {
@@ -58,7 +58,7 @@ function Home() {
   const handleUser = async () => {
     if (user) return;
     try {
-      let res = await axios.get("/api/user");
+      let res = await axios.get("/api/user", {baseURL: 'https://collabcanvas-backend.onrender.com'});
       if (res.data.success) {
         setUser(res.data.user);
       } else {

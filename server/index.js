@@ -123,7 +123,7 @@ io.on('connection', (socket) => {
         socket.emit("recievedObject", rooms[roomID]['canvas']);
     })
 
-    socket.on("leaveRoom", ({roomID, username}) => {
+    socket.on("leaveRoom", async ({roomID, username}) => {
         console.log("leaved");
         rooms[roomID]['clients']--;
         if(rooms[roomID]['clients'] == 0) {
@@ -131,7 +131,7 @@ io.on('connection', (socket) => {
         }else{
             io.sockets.in(roomID).emit("userLeft", {users: rooms[roomID]['clients'], user: username});
         }
-        socket.leave(roomID);
+        await socket.leave(roomID);
         console.log(rooms);
     })
 

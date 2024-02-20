@@ -59,7 +59,7 @@ function Home() {
   const handleUser = async () => {
     if (user) return;
     try {
-      let res = await axios.get("/api/user");
+      let res = await axios.get("/api/user", {baseURL:'https://collabcanvas-backend.onrender.com'});
       if (res.data.success) {
         setUser(res.data.user);
       } else {

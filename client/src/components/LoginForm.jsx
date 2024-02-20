@@ -11,17 +11,19 @@ function LoginForm() {
   const nav = useNavigate();
   const [msg, setMsg] = useState("");
   const [visible, setVisible] = useState(false);
+  const [submit, setSubmit] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    setSubmit(true);
     const body = {
       username: e.target.username.value,
       password: e.target.password.value
     }
 
     try{
-        let res = await axios.post("/api/login", {baseURL: 'https://collabcanvas-backend.onrender.com'}, {data: body});
+        let res = await axios.post("https://collabcanvas-backend.onrender.com/api/login",
+        body);
         console.log(res)
         if(res.data.success) {
           setUser(res.data.user);
@@ -32,6 +34,8 @@ function LoginForm() {
     }catch(e){
         console.log(e)
     }
+
+    setSubmit(false);
   }
 
   useEffect(() => {
@@ -64,7 +68,7 @@ if(window.innerWidth < 768) {
           <label className="form-check-label" htmlFor="exampleCheck1">Show Password</label>
         </div>
         <NavLink to="/signup">New User? Register</NavLink><br />
-        <button type="submit" className="btn btn-primary mt-2">Sign In</button>
+        <button type="submit" className="btn btn-primary mt-2" disabled={submit?true:false}>Sign In</button>
       </form>
     </div>
   )

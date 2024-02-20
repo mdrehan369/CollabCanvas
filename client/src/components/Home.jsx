@@ -22,6 +22,7 @@ function Home() {
   const [roomID, setRoomID] = useState("");
   const [msg, setMsg] = useState("");
   const { user, setUser } = useUserContext();
+  const [loading, setLoading] = useState(true);
 
   const handleCreateRoom = () => {
     const id = makeid(5);
@@ -58,10 +59,11 @@ function Home() {
   const handleUser = async () => {
     if (user) return;
     try {
-      let res = await axios.get("/api/user", {baseURL: 'https://collabcanvas-backend.onrender.com'});
+      let res = await axios.get("/api/user");
       if (res.data.success) {
         setUser(res.data.user);
       } else {
+        setLoading((prev) => false)
         nav("/login");
       }
     } catch (e) {
@@ -70,22 +72,25 @@ function Home() {
   };
 
   useEffect(() => {
+    setLoading((prev) => true);
     handleUser();
+    setLoading((prev) => false);
   }, []);
 
   useEffect(() => {
     let input = document.getElementsByTagName("input")[0];
     let btn = document.getElementsByTagName("button");
-let img = document.getElementsByTagName("img")[0];
+    let img = document.getElementsByTagName("img")[0];
 
-if(window.innerWidth < 768) {
-  img.classList.replace("w-25", "w-100");
-  input.classList.replace("w-25", "w-100");
-  Array.from(btn).forEach((val) => val.classList.replace("w-25", "w-100"));
-}
+    if(window.innerWidth < 768) {
+      img.classList.replace("w-25", "w-100");
+      input.classList.replace("w-25", "w-100");
+      Array.from(btn).forEach((val) => val.classList.replace("w-25", "w-100"));
+    }
   }, [])
 
   return (
+    !loading &&
     <div className="container-fluid d-flex flex-column align-items-center justify-content-center" style={{height: '100vh'}}>
         {msg?(<div className="alert alert-danger mt-4 text-center"> 
             <strong>{msg}!</strong>

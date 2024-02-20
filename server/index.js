@@ -5,7 +5,7 @@ import connect from './lib/connectDB.js';
 import { userModel } from "./lib/user.model.js"
 import session from 'express-session';
 import cors from "cors";
-import bodyParser from 'body-parser';
+// import bodyParser from 'body-parser';
 import 'dotenv/config';
 
 const app = express();
@@ -19,15 +19,15 @@ const io = new Server(server, {
 });
 
 app.use(session({
-    secret: 'your-secret-key', 
+    secret: 'dcvbnmklkjnbvcxzxcvghjk', 
     resave: false, 
     saveUninitialized: true,
   })); 
 
 app.use(cors());
 
-app.use(bodyParser.urlencoded());
-app.use(bodyParser.json());
+app.use(express.urlencoded());
+app.use(express.json());
 
 connect(process.env.MONGO_URI);
 

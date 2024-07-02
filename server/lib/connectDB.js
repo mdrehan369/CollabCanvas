@@ -3,10 +3,8 @@ import mongoose from "mongoose";
 const connect = async (URL) => {
 
     try{
-        await mongoose.connect(URL, {
-            // useNewUrlParser : true,
-            // useUnifiedTopology : true,
-        });
+        const connection = await mongoose.connect(URL);
+        console.log('Connected To Mongo DB ', connection.connection.host)
     }
     catch(err){
         console.log(err);
